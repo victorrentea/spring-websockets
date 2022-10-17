@@ -26,18 +26,13 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
-                stompClient.subscribe('/user/queue/errors', function (error) {
-                        alert("Error " + error.body);
+                stompClient.subscribe('/user/queue/errors', function (response) {
+                    logOnScreen("Received ERROR: " + response.body);
+                    toastr.error(response.body);
                 });
-                stompClient.subscribe('/topic/task-status', function (taskStatusResponse) {
-                    const taskStatus = JSON.parse(taskStatusResponse.body);
-                    if (taskInProgressUuids.indexOf(taskStatus.uuid)<0) {
-                        console.log("Ignoring status (not for me): ", taskStatus)
-                        return;
-                    }
-
-                    logOnScreen("Got response: " + taskStatusResponse.body);
-                    toastr.success("OK");
+                stompClient.subscribe('/user/queue/task-status', function (response) {
+                    logOnScreen("Received response: " + response.body);
+                    toastr.success(response.body);
                 });
             }, function() {
                 setConnected(false);
@@ -45,7 +40,6 @@
             });
         }
 
-        var taskInProgressUuids = [];
 
         setInterval(p=> {if (stompClient == null) connect()}, 1000); // TODO debate: what number to use here?
 
@@ -61,10 +55,10 @@
                 .then(response => response.text())
                 .then(uuid => {
                     logOnScreen(`Requested task: ${task}. Got from server uuid=${uuid}`);
-                    taskInProgressUuids.push(uuid);
                 })
-                .catch(function (error) {
-                    console.log('Request failed', error);
+                .catch(function (response) {
+                    logOnScreen("Received ERROR: " + response.body);
+                    toastr.error(response.body);
                 });
         }
         function sendViaWS() {
@@ -75,7 +69,6 @@
             let body = JSON.stringify({'uuid': uuid, 'task': task});
             logOnScreen("Sending STOMP message: " + body);
             stompClient.send("/app/task", {}, body);
-            taskInProgressUuids.push(uuid);
         }
 
         function logOnScreen(s) {
