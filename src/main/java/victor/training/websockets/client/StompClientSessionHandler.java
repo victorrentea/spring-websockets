@@ -1,4 +1,4 @@
-package victor.training;
+package victor.training.websockets.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

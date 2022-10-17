@@ -1,4 +1,4 @@
-package victor.training;
+package victor.training.websockets.stock;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;

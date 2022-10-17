@@ -33,12 +33,12 @@ import static org.assertj.core.api.Assertions.fail;
  * This test is inspired from: https://github.com/spring-guides/gs-messaging-stomp-websocket/blob/main/complete/src/test/java/com/example/messagingstompwebsocket/GreetingIntegrationTests.java
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class WebSocketIntegrationTest{
+class WebSocketRawIntegrationTest {
     WebSocketClient client;
     WebSocketStompClient stompClient;
     @Value("${local.server.port}")
     private int port;
-    private static final Logger logger= LoggerFactory.getLogger(WebSocketIntegrationTest.class);
+    private static final Logger logger= LoggerFactory.getLogger(WebSocketRawIntegrationTest.class);
 
     @BeforeEach
     public void setup() {
@@ -47,6 +47,7 @@ class WebSocketIntegrationTest{
         stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
     }
+
 
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws Exception {

@@ -1,4 +1,4 @@
-package victor.training;
+package victor.training.websockets.client;
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
@@ -9,7 +9,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.Scanner;
 
-public class StompWebSocketClient {
+public class StompWebSocketClientMain {
 
     private static final String URL = "ws://localhost:8080/stock-ticks/websocket";
 
