@@ -92,7 +92,7 @@ public class TaskController {
         };
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 20000)
     public void onExternalSignal_orPollingStatus() {
         webSocket.convertAndSend("/topic/mainframe_down",
                 "Mainframe outage at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
