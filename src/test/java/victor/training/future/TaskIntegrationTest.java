@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -65,6 +66,5 @@ class TaskIntegrationTest {
         String responseMessage = sessionHandler.getFirstFrameFuture().get(10, TimeUnit.SECONDS);
         assertThat(responseMessage).contains("mesaj");
     }
-
 }
 
