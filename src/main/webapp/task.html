@@ -30,13 +30,17 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
+                stompClient.subscribe('/user/queue/task-status', function (response) {
+                    logOnScreen("Received response: " + response.body);
+                    toastr.success(response.body);
+                });
                 stompClient.subscribe('/user/queue/errors', function (response) {
                     logOnScreen("Received ERROR: " + response.body);
                     toastr.error(response.body);
                 });
-                stompClient.subscribe('/user/queue/task-status', function (response) {
-                    logOnScreen("Received response: " + response.body);
-                    toastr.success(response.body);
+                stompClient.subscribe('/topic/mainframe_down', function (response) {
+                    logOnScreen("Received STATUS update: " + response.body);
+                    toastr.info(response.body);
                 });
             }, function() {
                 setConnected(false);

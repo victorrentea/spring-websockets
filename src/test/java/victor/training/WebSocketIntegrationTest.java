@@ -1,17 +1,18 @@
-package victor.training.debugwebsockets;
+package victor.training;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -35,7 +36,7 @@ import static org.assertj.core.api.Assertions.fail;
 class WebSocketIntegrationTest{
     WebSocketClient client;
     WebSocketStompClient stompClient;
-    @LocalServerPort
+    @Value("${local.server.port}")
     private int port;
     private static final Logger logger= LoggerFactory.getLogger(WebSocketIntegrationTest.class);
 
@@ -74,6 +75,7 @@ class WebSocketIntegrationTest{
                     public void handleFrame(StompHeaders headers, Object payload) {
                         try {
 
+                            System.out.println("Received payload: " + payload);
                             assertThat(payload).isNotNull();
                             assertThat(payload).isInstanceOf(Map.class);
 
@@ -102,7 +104,10 @@ class WebSocketIntegrationTest{
             public void handleTransportError(StompSession session, Throwable exception) {
             }
         };
-        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", sessionHandler, this.port);
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        headers.setBasicAuth("user", "user");
+        System.out.println("Connecting to port: " + port);
+        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, this.port);
         if (latch.await(20, TimeUnit.SECONDS)) {
             if (failure.get() != null) {
                 fail("Assertion Failed", failure.get());

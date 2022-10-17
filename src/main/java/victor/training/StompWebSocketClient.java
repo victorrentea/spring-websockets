@@ -1,7 +1,8 @@
-package victor.training.debugwebsockets;
+package victor.training;
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -17,7 +18,9 @@ public class StompWebSocketClient {
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         StompSessionHandler sessionHandler = new StompClientSessionHandler();
-        stompClient.connect(URL, sessionHandler);
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        headers.setBasicAuth("user","user");
+        stompClient.connect(URL,headers, sessionHandler);
 
         new Scanner(System.in).nextLine();
     }

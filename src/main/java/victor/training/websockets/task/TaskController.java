@@ -9,10 +9,13 @@ import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 import static org.springframework.messaging.support.MessageBuilder.withPayload;
@@ -23,7 +26,6 @@ import static org.springframework.messaging.support.MessageBuilder.withPayload;
 public class TaskController {
     private final StreamBridge streamBridge;
     private final SimpMessagingTemplate webSocket;
-
 
 
     @MessageMapping("/task")
@@ -59,6 +61,7 @@ public class TaskController {
         log.info("Sending message over queue: " + task);
         streamBridge.send("task-request-out", requestMessage);
         // TODO debate: when should I give a UUID back to the browser?
+        // TODO debate: when should I send a UUID in the message forward?
     }
 
     @ResponseBody
@@ -77,5 +80,11 @@ public class TaskController {
             String responseMessageFromQueue = taskResponseMessage.getPayload();
             webSocket.convertAndSendToUser(requesterUsername, "/queue/task-status", responseMessageFromQueue);
         };
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void onExternalSignal_orPollingStatus() {
+        webSocket.convertAndSend("/topic/mainframe_down",
+                "Mainframe outage at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 }
