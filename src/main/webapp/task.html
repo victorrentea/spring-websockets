@@ -52,21 +52,23 @@
                 method: 'post',
                 body: task
             })
-                .then(response => response.text())
-                .then(uuid => {
-                    logOnScreen(`Requested task: ${task}. Got from server uuid=${uuid}`);
+                .then(response => {
+                    if (!response.ok) return Promise.reject(response);
+                    logOnScreen(`Requested task: ${task}`);
                 })
-                .catch(function (response) {
-                    logOnScreen("Received ERROR: " + response.body);
-                    toastr.error(response.body);
-                });
+                .catch(function (error) {
+                    error.text().then(e => {
+                        logOnScreen("Received ERROR: " + e);
+                        toastr.error(e);
+                    });
+                })
+            ;
         }
         function sendViaWS() {
             const task = document.getElementById('task').value;
 
             // Option2: send via WS
-            let uuid = uuidv4(); // generate unique id
-            let body = JSON.stringify({'uuid': uuid, 'task': task});
+            let body = JSON.stringify({'task': task});
             logOnScreen("Sending STOMP message: " + body);
             stompClient.send("/app/task", {}, body);
         }

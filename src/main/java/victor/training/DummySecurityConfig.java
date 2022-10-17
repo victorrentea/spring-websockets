@@ -27,7 +27,8 @@ public class DummySecurityConfig extends WebSecurityConfigurerAdapter {
                .anyRequest().authenticated()
                .and()
                .formLogin().permitAll() // pt oameni
-               .defaultSuccessUrl("/", true);
+//               .defaultSuccessUrl("/", true)
+       ;
    }
 
    // *** Dummy users 100% in-mem - NEVER USE IN PRODUCTION
