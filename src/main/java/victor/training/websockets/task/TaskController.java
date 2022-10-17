@@ -12,11 +12,14 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static org.springframework.messaging.support.MessageBuilder.withPayload;
 
@@ -59,10 +62,17 @@ public class TaskController {
                 .setHeader("REQUESTER_USERNAME", principal.getName())
                 .build();
         log.info("Sending message over queue: " + task);
-        streamBridge.send("task-request-out", requestMessage);
+        streamBridge.send("taskRequest-out-0", requestMessage);
+//        sendMessageSink.tryEmitNext(requestMessage); // Reactive way of sending
         // TODO debate: when should I give a UUID back to the browser?
         // TODO debate: when should I send a UUID in the message forward?
     }
+
+//    public static final Sinks.Many<Message<String>> sendMessageSink = Sinks.many().unicast().onBackpressureBuffer();
+//    @Bean
+//    public Supplier<Flux<Message<String>>> taskRequest() {
+//        return sendMessageSink::asFlux;
+//    }
 
     @ResponseBody
     @ResponseStatus
