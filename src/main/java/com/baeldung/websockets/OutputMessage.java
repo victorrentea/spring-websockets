@@ -1,16 +1,18 @@
 package com.baeldung.websockets;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class OutputMessage {
 
     private String from;
     private String text;
-    private String time;
+    private String time =  LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
-    public OutputMessage(final String from, final String text, final String time) {
+    public OutputMessage(String from, String text) {
 
         this.from = from;
         this.text = text;
-        this.time = time;
     }
 
     public String getText() {

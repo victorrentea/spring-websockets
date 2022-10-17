@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications WebSocket</title>
+
+    <script src="resources/js/sockjs-0.3.4.js"></script>
+    <script src="resources/js/stomp.js"></script>
+
+    <script src="resources/js/jquery-1.12.2.min.js"></script>
+    <script src="resources/js/toastr.min.js"></script>
+    <link href="resources/js/toastr.min.css" rel="stylesheet"/>
+    <script src="resources/js/stomp.js"></script>
+
+    <script type="text/javascript">
+
+        let stompClient = null;
+
+        function setConnected(connected) {
+            document.getElementById('status').innerHTML = connected?'✅':'❌';
+        }
+
+        function connect() {
+            setConnected(false);
+            const socket = new SockJS('/task');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                setConnected(true);
+                stompClient.subscribe('/topic/task-status', function (messageOutput) {
+                    // showMessageOutput(JSON.parse(messageOutput.body));
+                    logOnScreen("Got response: " + messageOutput.body);
+                    toastr.success("OK");
+                });
+            }, function() {
+                setConnected(false);
+                stompClient = null;
+            });
+        }
+        setInterval(p=> {if (stompClient == null) connect()}, 1000);
+
+
+        function sendTask() {
+            const task = document.getElementById('task').value;
+
+            // Option1: send via REST
+            // fetch()
+
+            // Option2: send via WS
+            let uuid = uuidv4(); // generate unique id
+            let body = JSON.stringify({'uuid': uuid, 'task': task});
+            logOnScreen("Requesting task: " + body);
+            stompClient.send("/app/task", {}, body);
+
+            generateTask();
+        }
+
+        function logOnScreen(s) {
+            const response = document.getElementById('response');
+            const p = document.createElement('p');
+            p.style.wordWrap = 'break-word';
+            p.appendChild(document.createTextNode(s));
+            response.appendChild(p);
+        }
+
+
+        function uuidv4() {
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+        function generateTask() {
+            // document.getElementById('task').value = uuidv4();
+        }
+    </script>
+
+</head>
+
+<body onload="generateTask(); connect();">
+
+<div>
+    Connected: <span id="status">✅</span>
+
+    <div>
+        <input type="text" id="task" value="task" />
+        <button id="send" autofocus onclick="sendTask()">Send Task</button>
+    </div>
+    <br/>
+    <p id="response"></p>
+</div>
+</body>
+</html>

@@ -1,7 +1,6 @@
 package com.baeldung.websockets;
 
-public class Message {
-
+public class MessageRequest {
     private String from;
     private String text;
 

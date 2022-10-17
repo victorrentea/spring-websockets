@@ -49,8 +49,8 @@ class WebSocketIntegrationTest{
 
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<Throwable> failure = new AtomicReference<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
         StompSessionHandler sessionHandler = new StompSessionHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {

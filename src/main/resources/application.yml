@@ -1,0 +1,22 @@
+spring:
+  cloud:
+    function:
+      definition: executeTask;handleTaskResponse
+    stream:
+      bindings:
+        task-request-out:
+          destination: task-request
+        executeTask-in-0:
+          destination: task-request
+          group: execute-app
+          consumer:
+            concurrency: 5
+        executeTask-out-0:
+          destination: task-response
+        handleTaskResponse-in-0:
+          destination: task-response
+          group: client-app
+
+#spring.cloud.stream.bindings.paymentResponse-in-0.destination=payment-response
+#spring.cloud.stream.bindings.paymentResponse-in-0.group=order-app
+#spring.cloud.stream.bindings.paymentUndoRequest-out-0.destination=payment-undo-request
