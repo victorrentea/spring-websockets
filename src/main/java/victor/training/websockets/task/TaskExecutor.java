@@ -16,7 +16,7 @@ public class TaskExecutor {
     public Function<Message<String>,Message<String>> executeTask() {
         return taskRequestMessage-> {
             log.info("Processing task: Start...");
-            TimeUtils.sleepq();
+            TimeUtils.sleepq(1);
             log.info("Processing task: END");
             return MessageBuilder.createMessage(taskRequestMessage.getPayload() + " ... OK", taskRequestMessage.getHeaders());
         };

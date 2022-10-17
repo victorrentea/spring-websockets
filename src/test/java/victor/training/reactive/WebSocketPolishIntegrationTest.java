@@ -40,7 +40,7 @@ class WebSocketPolishIntegrationTest {
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.setBasicAuth("user", "user");
-        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, this.port);
+        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, port);
 
         List<Map> two = sessionHandler.getFrameFlux().take(2).collectList().block(Duration.ofSeconds(20));
         assertThat(two.get(0)).containsKey("HPE");

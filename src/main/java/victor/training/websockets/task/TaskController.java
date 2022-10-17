@@ -88,7 +88,12 @@ public class TaskController {
             log.info("Got task status: " + taskResponseMessage);
             String requesterUsername = taskResponseMessage.getHeaders().get("REQUESTER_USERNAME", String.class);
             String responseMessageFromQueue = taskResponseMessage.getPayload();
-            webSocket.convertAndSendToUser(requesterUsername, "/queue/task-status", responseMessageFromQueue);
+            if (requesterUsername == null) {
+                log.warn("No REQUESTER_USERNAME header found in incoming message!");
+                return;
+            }
+//            webSocket.convertAndSendToUser(requesterUsername, "/queue/task-status", responseMessageFromQueue);
+            webSocket.convertAndSend("/topic/task-status", responseMessageFromQueue);
         };
     }
 

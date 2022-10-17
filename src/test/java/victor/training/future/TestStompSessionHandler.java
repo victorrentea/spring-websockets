@@ -14,6 +14,7 @@ public class TestStompSessionHandler<T> implements StompSessionHandler {
     private final String destinationToSubscribe;
     private final Class<T> frameClass;
     private final CompletableFuture<T> firstFrameFuture = new CompletableFuture<>();
+    private final CompletableFuture<Void> connectedFuture = new CompletableFuture<>();
 
     public TestStompSessionHandler(String destinationToSubscribe, Class<T> frameClass) {
         this.destinationToSubscribe = destinationToSubscribe;
@@ -22,6 +23,10 @@ public class TestStompSessionHandler<T> implements StompSessionHandler {
 
     public CompletableFuture<T> getFirstFrameFuture() {
         return firstFrameFuture;
+    }
+
+    public CompletableFuture<Void> getConnectedFuture() {
+        return connectedFuture;
     }
 
     @Override
@@ -35,11 +40,11 @@ public class TestStompSessionHandler<T> implements StompSessionHandler {
 
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-        log.info("Connected to the WebSocket ...");
+        log.info("Connected to the WebSocket {} ...", connectedHeaders);
         session.subscribe(destinationToSubscribe, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return Map.class;
+                return frameClass;
             }
 
             @Override
@@ -63,6 +68,7 @@ public class TestStompSessionHandler<T> implements StompSessionHandler {
 
             }
         });
+        connectedFuture.complete(null);
     }
 
     @Override

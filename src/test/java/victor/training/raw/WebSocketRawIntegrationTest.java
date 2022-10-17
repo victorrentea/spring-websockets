@@ -108,7 +108,7 @@ class WebSocketRawIntegrationTest {
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.setBasicAuth("user", "user");
         System.out.println("Connecting to port: " + port);
-        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, this.port);
+        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, port);
         if (latch.await(20, TimeUnit.SECONDS)) {
             if (failure.get() != null) {
                 fail("Assertion Failed", failure.get());
