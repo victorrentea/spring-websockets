@@ -21,6 +21,10 @@
         }
 
         function connect() {
+            fetch("current-user")
+                .then(response => response.text())
+                .then(text => document.getElementById('username').innerHTML = text);
+
             setConnected(false);
             const socket = new SockJS('/task');
             stompClient = Stomp.over(socket);
@@ -97,7 +101,7 @@
 <body onload="generateTask(); connect();">
 
 <div>
-    Connected: <span id="status">✅</span>
+    Connected (as <span id="username"></span>): <span id="status">✅</span>
 
     <div>
         <input type="text" id="task" value="task" />

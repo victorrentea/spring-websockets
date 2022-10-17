@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -22,6 +23,8 @@ import static org.springframework.messaging.support.MessageBuilder.withPayload;
 public class TaskController {
     private final StreamBridge streamBridge;
     private final SimpMessagingTemplate webSocket;
+
+
 
     @MessageMapping("/task")
     public void submitTaskOverWebsockets(TaskRequest taskRequest, Principal principal) throws Exception {

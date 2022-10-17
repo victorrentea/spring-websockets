@@ -17,9 +17,9 @@ spring:
           destination: task-response
           group: client-app
 
-logging:
+
+  thymeleaf:
+    prefix: classpath:/resources
   level:
     victor: DEBUG
-#spring.cloud.stream.bindings.paymentResponse-in-0.destination=payment-response
-#spring.cloud.stream.bindings.paymentResponse-in-0.group=order-app
-#spring.cloud.stream.bindings.paymentUndoRequest-out-0.destination=payment-undo-request
+

@@ -11,11 +11,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class DummySecurityConfig extends WebSecurityConfigurerAdapter {
@@ -39,6 +43,11 @@ public class DummySecurityConfig extends WebSecurityConfigurerAdapter {
       UserDetails adminDetails = User.withDefaultPasswordEncoder()
           .username("admin").password("admin").roles("ADMIN").build();
       return new InMemoryUserDetailsManager(userDetails, adminDetails);
+   }
+
+   @GetMapping("current-user")
+   public String user() {
+      return SecurityContextHolder.getContext().getAuthentication().getName();
    }
 
 }
