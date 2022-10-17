@@ -26,6 +26,9 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
+                stompClient.subscribe('/user/queue/errors', function (error) {
+                        alert("Error " + error.body);
+                });
                 stompClient.subscribe('/topic/task-status', function (taskStatusResponse) {
                     const taskStatus = JSON.parse(taskStatusResponse.body);
                     if (taskInProgressUuids.indexOf(taskStatus.uuid)<0) {
