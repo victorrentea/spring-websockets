@@ -1,4 +1,4 @@
-package com.baeldung.websockets;
+package com.baeldung.websockets.chat;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -23,8 +22,6 @@ import java.util.Map;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -40,10 +37,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat").addInterceptors(handshakeInterceptor()).withSockJS();
-        registry.addEndpoint("/task").withSockJS();
-
-//        registry.addEndpoint("/chatwithbots");
-        registry.addEndpoint("/chatwithbots").withSockJS();
     }
     @Slf4j
     public static class GreetingHandshakeChatInterceptor implements HandshakeInterceptor{

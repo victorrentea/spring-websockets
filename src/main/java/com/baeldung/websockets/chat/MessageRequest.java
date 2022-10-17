@@ -1,4 +1,4 @@
-package com.baeldung.websockets;
+package com.baeldung.websockets.chat;
 
 public class MessageRequest {
     private String from;

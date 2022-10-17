@@ -1,4 +1,4 @@
-package com.baeldung.websockets;
+package com.baeldung.websockets.task;
 
 public enum TaskStatus {
     OK, KO

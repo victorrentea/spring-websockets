@@ -1,4 +1,4 @@
-package com.baeldung.websockets;
+package com.baeldung.websockets.chat;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;

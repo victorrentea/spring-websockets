@@ -1,4 +1,4 @@
-package com.baeldung.websockets;
+package com.baeldung.websockets.chat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

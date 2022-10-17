@@ -26,9 +26,14 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
-                stompClient.subscribe('/topic/task-status', function (messageOutput) {
-                    // showMessageOutput(JSON.parse(messageOutput.body));
-                    logOnScreen("Got response: " + messageOutput.body);
+                stompClient.subscribe('/topic/task-status', function (taskStatusResponse) {
+                    const taskStatus = JSON.parse(taskStatusResponse.body);
+                    if (taskInProgressUuids.indexOf(taskStatus.uuid)<0) {
+                        console.log("Ignoring status (not for me): ", taskStatus)
+                        return;
+                    }
+
+                    logOnScreen("Got response: " + taskStatusResponse.body);
                     toastr.success("OK");
                 });
             }, function() {
@@ -36,22 +41,38 @@
                 stompClient = null;
             });
         }
-        setInterval(p=> {if (stompClient == null) connect()}, 1000);
+
+        var taskInProgressUuids = [];
+
+        setInterval(p=> {if (stompClient == null) connect()}, 1000); // TODO debate: what number to use here?
 
 
-        function sendTask() {
+        function sendViaRest() {
             const task = document.getElementById('task').value;
 
             // Option1: send via REST
-            // fetch()
+            fetch("submit-task", {
+                method: 'post',
+                body: task
+            })
+                .then(response => response.text())
+                .then(uuid => {
+                    logOnScreen(`Requested task: ${task}. Got from server uuid=${uuid}`);
+                    taskInProgressUuids.push(uuid);
+                })
+                .catch(function (error) {
+                    console.log('Request failed', error);
+                });
+        }
+        function sendViaWS() {
+            const task = document.getElementById('task').value;
 
             // Option2: send via WS
             let uuid = uuidv4(); // generate unique id
             let body = JSON.stringify({'uuid': uuid, 'task': task});
-            logOnScreen("Requesting task: " + body);
+            logOnScreen("Sending STOMP message: " + body);
             stompClient.send("/app/task", {}, body);
-
-            generateTask();
+            taskInProgressUuids.push(uuid);
         }
 
         function logOnScreen(s) {
@@ -82,7 +103,8 @@
 
     <div>
         <input type="text" id="task" value="task" />
-        <button id="send" autofocus onclick="sendTask()">Send Task</button>
+        <button  autofocus onclick="sendViaRest()">Send via REST</button>
+        <button onclick="sendViaWS()">Send via WS</button>
     </div>
     <br/>
     <p id="response"></p>
