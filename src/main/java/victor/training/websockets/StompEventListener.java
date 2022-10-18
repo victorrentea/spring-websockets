@@ -32,7 +32,7 @@ public class StompEventListener{
     public void onSocketConnect(SessionConnectEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
 
-        List<String> usernameFromHeader = sha.getNativeHeader("user");
+        String usernameFromHeader = event.getUser().getName();//sha.getNativeHeader("user");
 
         CompletableFuture.runAsync(() -> {
             log.info("SEnd welcome to Username" + usernameFromHeader);
