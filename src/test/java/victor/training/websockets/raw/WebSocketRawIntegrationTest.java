@@ -1,4 +1,4 @@
-package victor.training.raw;
+package victor.training.websockets.raw;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

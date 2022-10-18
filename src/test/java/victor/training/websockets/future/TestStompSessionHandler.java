@@ -1,34 +1,32 @@
-package victor.training.reactive;
+package victor.training.websockets.future;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.stomp.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class TestReactiveStompSessionHandler<T> implements StompSessionHandler {
+public class TestStompSessionHandler<T> implements StompSessionHandler {
     private final String destinationToSubscribe;
     private final Class<T> frameClass;
-    private final Sinks.Many<T> sink = Sinks.many().unicast().onBackpressureBuffer();
-    private StompSession session;
-    private Flux<T> frameFlux = sink.asFlux().doOnTerminate(() -> {
-        if (session != null) {
-            session.disconnect();
-        }
-    });
+    private final CompletableFuture<T> firstFrameFuture = new CompletableFuture<>();
+    private final CompletableFuture<Void> connectedFuture = new CompletableFuture<>();
 
-    public TestReactiveStompSessionHandler(String destinationToSubscribe, Class<T> frameClass) {
+    public TestStompSessionHandler(String destinationToSubscribe, Class<T> frameClass) {
         this.destinationToSubscribe = destinationToSubscribe;
         this.frameClass = frameClass;
     }
 
-    public Flux<T> getFrameFlux() {
-        return frameFlux;
+    public CompletableFuture<T> getFirstFrameFuture() {
+        return firstFrameFuture;
+    }
+
+    public CompletableFuture<Void> getConnectedFuture() {
+        return connectedFuture;
     }
 
     @Override
@@ -42,13 +40,11 @@ public class TestReactiveStompSessionHandler<T> implements StompSessionHandler {
 
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-        log.info("Connected to the WebSocket ...");
-        this.session = session; // for later disconnection
-
+        log.info("Connected to the WebSocket {} ...", connectedHeaders);
         session.subscribe(destinationToSubscribe, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return Map.class;
+                return frameClass;
             }
 
             @Override
@@ -59,19 +55,20 @@ public class TestReactiveStompSessionHandler<T> implements StompSessionHandler {
                     assertThat(payload).isNotNull();
                     assertThat(payload).isInstanceOf(frameClass);
 
-                    T frame = (T) payload;
-                    sink.tryEmitNext(frame);
+                    T map = (T) payload;
+                    firstFrameFuture.complete(map);
 
                 } catch (Throwable t) {
                     log.error("There is an exception ", t);
-                    sink.tryEmitError(t);
+                    firstFrameFuture.completeExceptionally(t);
                 } finally {
-//                    session.disconnect();
-//                    firstFrameFuture.completeExceptionally(new IllegalArgumentException("Impossible to get here:)"));
+                    session.disconnect();
+                    firstFrameFuture.completeExceptionally(new IllegalArgumentException("Impossible to get here:)"));
                 }
 
             }
         });
+        connectedFuture.complete(null);
     }
 
     @Override

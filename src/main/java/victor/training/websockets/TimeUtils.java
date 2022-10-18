@@ -1,4 +1,4 @@
-package victor.training;
+package victor.training.websockets;
 
 public class TimeUtils {
     public static void sleepq(int seconds) {

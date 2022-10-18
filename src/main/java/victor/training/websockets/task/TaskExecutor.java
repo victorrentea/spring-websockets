@@ -1,6 +1,6 @@
 package victor.training.websockets.task;
 
-import victor.training.TimeUtils;
+import victor.training.websockets.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

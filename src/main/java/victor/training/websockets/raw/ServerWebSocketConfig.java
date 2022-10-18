@@ -1,4 +1,4 @@
-package victor.training.rawwebsocket;
+package victor.training.websockets.raw;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
