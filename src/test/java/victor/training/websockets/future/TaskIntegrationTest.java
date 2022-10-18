@@ -61,12 +61,12 @@ class TaskIntegrationTest {
 
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
-//        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/user/user/queue/task-status", String.class);
-        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/topic/task-status", String.class);
+        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/user/admin/queue/task-done", String.class);
+//        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/topic/task-status", String.class);
         log.info("Connecting to port: " + port);
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        headers.setBasicAuth("user", "user");
+        headers.setBasicAuth("admin", "admin");
         StompHeaders stompHeaders = new StompHeaders();
         stompClient.connect("ws://localhost:{port}/task/websocket", headers,stompHeaders, sessionHandler, port);
 
@@ -78,7 +78,7 @@ class TaskIntegrationTest {
 
         // m-am legat. Acum trebuie sa triggerez un semnal in urma caruia BE sa emita date pe WS
 
-        MessageHeaders messageHeaders = new MessageHeaders(Map.of("REQUESTER_USERNAME","user"));
+        MessageHeaders messageHeaders = new MessageHeaders(Map.of("REQUESTER_USERNAME","admin"));
         Message<String> pretendMessage = MessageBuilder.createMessage("task15 is done", messageHeaders);
         handleTaskResponse.accept(pretendMessage); // execu handlerul de mesaj ca si cum ar fi venit ACKul pe taskul trimis spre executie
 
