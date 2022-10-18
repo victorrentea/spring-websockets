@@ -105,8 +105,8 @@ public class TaskController {
     //        streamBridge.send("taskRequest-out-0", requestMessage);
 
     //        sendMessageSink.tryEmitNext(requestMessage); // Reactive way of sending
-    // TODO debate: when should I give a UUID back to the browser?
-    // TODO debate: when should I send a UUID in the message forward?
+
+    // TODO debate: when should I generate and add a UUID in the message header I send?
 
     //    public static final Sinks.Many<Message<String>> sendMessageSink = Sinks.many().unicast().onBackpressureBuffer();
     //    @Bean
@@ -134,6 +134,8 @@ public class TaskController {
             String responseMessageFromQueue = taskResponseMessage.getPayload();
 //            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             webSocket.convertAndSend("/user/" + username + "/queue/task-done", responseMessageFromQueue);
+
+
         };
     }
 

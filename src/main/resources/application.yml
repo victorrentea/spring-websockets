@@ -13,7 +13,6 @@ spring:
           destination: task-response
           group: client-app
 
-
         #config pt app "provider"
         executeTask-in-0:
           destination: task-request
