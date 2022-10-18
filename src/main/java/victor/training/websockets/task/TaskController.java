@@ -53,7 +53,7 @@ public class TaskController {
         log.error("Caught exception " + exception, exception);
         return exception.toString();
 
-        // alternatives to @SendToUser:
+        // alternatives to @SendToUser, that work from any code (not only from a @MessageMapping or @MessageExceptionHandler):
         // webSocket.convertAndSendToUser(principal.getName(), "/queue/errors", exception.toString());
         // webSocket.convertAndSend("/user/"+principal.getName()+"/queue/errors",exception.toString());
     }
@@ -104,20 +104,11 @@ public class TaskController {
     //        log.info("Sending message over queue: " + taskRequest.task());
     //        streamBridge.send("taskRequest-out-0", requestMessage);
 
-    //        sendMessageSink.tryEmitNext(requestMessage); // Reactive way of sending
-
-    // TODO debate: when should I generate and add a UUID in the message header I send?
-
-    //    public static final Sinks.Many<Message<String>> sendMessageSink = Sinks.many().unicast().onBackpressureBuffer();
-    //    @Bean
-    //    public Supplier<Flux<Message<String>>> taskRequest() {
-    //        return sendMessageSink::asFlux;
-    //    }
 
     // REST
     @ResponseBody
     @ResponseStatus
-    @ExceptionHandler(Exception.class) // @RestControllerAdvice
+    @ExceptionHandler(Exception.class) // usually in a global @RestControllerAdvice
     public String handleExceptionInRest(Exception e) {
         return e.toString();
     }
