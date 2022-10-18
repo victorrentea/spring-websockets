@@ -25,37 +25,38 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/topic"); // Unde pot trimite mesaje in general
+        config.setApplicationDestinationPrefixes("/app"); // prefix comun pentru cand BROW imi scrie serverului
     }
     
-    @Bean
-    public GreetingHandshakeChatInterceptor handshakeInterceptor() {
-        return new GreetingHandshakeChatInterceptor();
-    }
+//    @Bean
+//    public GreetingHandshakeChatInterceptor handshakeInterceptor() {
+//        return new GreetingHandshakeChatInterceptor();
+//    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chat").addInterceptors(handshakeInterceptor()).withSockJS();
+        // inregistreaza un STOMP/ws la URL-ul /chat
+        registry.addEndpoint("/chat")/*.addInterceptors(handshakeInterceptor())*/.withSockJS();
     }
-    @Slf4j
-    public static class GreetingHandshakeChatInterceptor implements HandshakeInterceptor{
-        @Autowired
-        @Lazy
-        private SimpMessagingTemplate webSocket;
-
-        @Override
-        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-            return true;
-        }
-
-        @SneakyThrows
-        @Override
-        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
-            log.info("welcome!");
-            webSocket.convertAndSend("/topic/messages", new OutputMessage("sys", "Please welcome "));
-        }
-    }
+//    @Slf4j
+//    public static class GreetingHandshakeChatInterceptor implements HandshakeInterceptor{
+//        @Autowired
+//        @Lazy
+//        private SimpMessagingTemplate webSocket;
+//
+//        @Override
+//        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+//            return true;
+//        }
+//
+//        @SneakyThrows
+//        @Override
+//        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+//            log.info("welcome!");
+//            webSocket.convertAndSend("/topic/messages", new OutputMessage("sys", "Please welcome "));
+//        }
+//    }
 
 }
 
