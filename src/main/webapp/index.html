@@ -26,12 +26,12 @@
             }
             const socket = new SockJS('/chat');
             stompClient = Stomp.over(socket);
-            stompClient.connect({}, function (frame) {
+            stompClient.connect({"user":from}, function (frame) {
                 setConnected(true); // ui
                 stompClient.subscribe('/topic/chat', function (messageOutput) {
                     showMessageOutput(JSON.parse(messageOutput.body));
                 });
-                stompClient.send("/app/chat", {}, JSON.stringify({'from': "sys", 'text': "Welcome " +from}));
+                //stompClient.send("/app/chat", {}, JSON.stringify({'from': "sys", 'text': "Welcome " +from}));
 
             }, function() {
                 console.log("Lost connection!");
@@ -77,7 +77,7 @@
     <div>(see also the <a href="task.html">Task notification app</a>, using Spring Security)<br><br></div>
     <div>
         <label for="from">Connect as: </label>
-        <input type="text" autofocus id="from" placeholder="Choose a nickname"/>
+        <input type="text" autofocus id="from" placeholder="Choose a nickname" value="Nick"/>
     </div>
     <br/>
     <div>
