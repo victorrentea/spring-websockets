@@ -12,10 +12,15 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
+import org.testcontainers.containers.RabbitMQContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import victor.training.websockets.TimeUtils;
 
 import java.util.Map;
@@ -24,6 +29,7 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Testcontainers
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TaskIntegrationTest {
@@ -31,6 +37,17 @@ class TaskIntegrationTest {
     WebSocketStompClient stompClient = new WebSocketStompClient(client);
     @Value("${local.server.port}")
     private int port;
+
+
+    @Container
+    static public RabbitMQContainer rabbitMQContainer =
+            new RabbitMQContainer("rabbitmq:3-management");
+
+    @DynamicPropertySource
+    public static void registerPgProperties(DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.username",  rabbitMQContainer.getAmqpUrl());
+    }
+
 
     @BeforeEach
     public void setup() {
