@@ -7,12 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +43,17 @@ class WebSocketPolishIntegrationTest {
         headers.setBasicAuth("user", "user");
         stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, port);
 
-        Map map = sessionHandler.getFirstFrameFuture().get(20, TimeUnit.SECONDS);
+        // Trigger in urma caruia WS sa emita un data frame catre client (brow)
+
+        //1) new RestTemplate().postForObject("http://localhost:{port}",/......)
+        //2) vine mesaj pe un "reply= queue"
+        //3) time-based. @Scheduled:  apare un fisier intr-un folder, un rand in DB se modifica, <<< ACI
+        //4) pe alt WS echipa de support raspunde la mesajul tau
+
+        CompletableFuture<Map> cf = sessionHandler.getFirstFrameFuture();
+
+        Map map = cf.get(20, TimeUnit.SECONDS); // throw daca a aparut eroare in interact cu ws sau datele primului frame
+
         assertThat(map).containsKey("HPE");
         assertThat(map.get("HPE")).isInstanceOf(Integer.class);
     }

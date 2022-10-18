@@ -46,13 +46,17 @@ class WebSocketRawIntegrationTest {
         client = new StandardWebSocketClient();
         stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+        System.out.println("Connecting to port: " + port);
+
     }
 
 
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<Throwable> failure = new AtomicReference<>();
+        CountDownLatch latch = new CountDownLatch(1); // poti sa notific testul cand ti-a venit rezultatul
+        AtomicReference<Throwable> failure = new AtomicReference<>(); // pasezi eroare (daca a fost una) testului
+
         StompSessionHandler sessionHandler = new StompSessionHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
@@ -105,10 +109,11 @@ class WebSocketRawIntegrationTest {
             public void handleTransportError(StompSession session, Throwable exception) {
             }
         };
+
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.setBasicAuth("user", "user");
-        System.out.println("Connecting to port: " + port);
-        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, port);
+        stompClient.connect("ws://localhost:{port}/stock-ticks/websocket", headers, sessionHandler, port); // non blocant, returneaza instant
+
         if (latch.await(20, TimeUnit.SECONDS)) {
             if (failure.get() != null) {
                 fail("Assertion Failed", failure.get());

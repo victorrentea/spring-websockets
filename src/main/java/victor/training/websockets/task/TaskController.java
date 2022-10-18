@@ -125,8 +125,6 @@ public class TaskController {
             String responseMessageFromQueue = taskResponseMessage.getPayload();
 //            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             webSocket.convertAndSend("/user/" + username + "/queue/task-done", responseMessageFromQueue);
-
-
         };
     }
 

@@ -1,5 +1,4 @@
 management.endpoints.web.exposure.include: "*"
-rabbit
 spring:
   cloud:
 #    function:
