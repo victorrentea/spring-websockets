@@ -11,12 +11,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import victor.training.websockets.TimeUtils;
 import victor.training.websockets.chat.OutputMessage;
 
+import javax.annotation.PostConstruct;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -54,17 +56,25 @@ public class TaskController {
     // -----END de evitat: BROW trimite catre Server -----
 
 
+    @PostConstruct
+    public void enableSecurityContextPropagationOverAsyncCalls() {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
+
     @Async // cere lui spring sa execute munca asicnron, returnad instant 200 la client.
     @PostMapping("/submit-task")
-    public void submitTaskOverRest(@RequestBody String task, Principal principal) throws Exception {
+    public void submitTaskOverRest(@RequestBody String task) throws Exception {
 //        if (Math.random() < 0.3) throw new RuntimeException("Life is not perfect. Exceptions while sending the message.");
         //Cap1: requestul dureaza mult in mem mea
-        log.info("Starting long running task for user " +principal.getName());
+//        String currentUsername = principal.getName();
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        log.info("Starting long running task for user " + currentUsername);
         TimeUtils.sleepq(3); // 10 min inchipuieti
         log.info("Ending long running task");
 
         // aici dupa ce am transpirat facand tasku, tre' sa anunt browserul
-        String queueName = "/user/" + principal.getName() + "/queue/task-done";
+        String queueName = "/user/" + currentUsername + "/queue/task-done";
         webSocket.convertAndSend(queueName, task + " GATA");
     }
 
