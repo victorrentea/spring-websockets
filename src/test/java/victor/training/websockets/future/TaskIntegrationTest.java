@@ -57,7 +57,6 @@ class TaskIntegrationTest {
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
         TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/user/queue/task-done", String.class);
-//        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/topic/task-status", String.class);
         log.info("Connecting to port: " + port);
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
@@ -65,13 +64,12 @@ class TaskIntegrationTest {
         StompHeaders stompHeaders = new StompHeaders();
         stompClient.connect("ws://localhost:{port}/task/websocket", headers,stompHeaders, sessionHandler, port);
 
+        log.info("Establishing websocket connection...");
         sessionHandler.getConnectedFuture().get(5, TimeUnit.SECONDS); //wait for connection to websockets to be established
+        log.info("Websocket connected!");
 
 
-        log.info("Send pretend message");
-        TimeUtils.sleepq(1); // victor a fost slab: nu a gasit un mod in care sa nu fie nevoie de sleep.
-
-        // m-am legat. Acum trebuie sa triggerez un semnal in urma caruia BE sa emita date pe WS
+        log.info("Send pretend message -----");
 
         MessageHeaders messageHeaders = new MessageHeaders(Map.of("REQUESTER_USERNAME","user"));
         Message<String> pretendMessage = MessageBuilder.createMessage("task15 is done", messageHeaders);

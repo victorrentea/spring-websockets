@@ -6,7 +6,10 @@ import org.springframework.messaging.simp.stomp.*;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.CompletableFuture.*;
+import static java.util.concurrent.CompletableFuture.delayedExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -68,7 +71,8 @@ public class TestStompSessionHandler<T> implements StompSessionHandler {
 
             }
         });
-        connectedFuture.complete(null);
+
+        runAsync(() -> connectedFuture.complete(null), delayedExecutor(100, TimeUnit.MILLISECONDS));
     }
 
     @Override

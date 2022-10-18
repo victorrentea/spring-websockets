@@ -34,11 +34,11 @@ public class StompEventListener{
 
         String usernameFromHeader = event.getUser().getName();//sha.getNativeHeader("user");
 
-        CompletableFuture.runAsync(() -> {
-            log.info("SEnd welcome to Username" + usernameFromHeader);
-            OutputMessage message = new OutputMessage("Sys", "Welcome " + usernameFromHeader);
-            websocket.convertAndSend("/topic/chat", message);
-        }, delayedExecutor(100, MILLISECONDS));
+//        CompletableFuture.runAsync(() -> {
+//            log.info("SEnd welcome to Username" + usernameFromHeader);
+//            OutputMessage message = new OutputMessage("Sys", "Welcome " + usernameFromHeader);
+//            websocket.convertAndSend("/topic/chat", message);
+//        }, delayedExecutor(100, MILLISECONDS));
 
         boolean isConnect = sha.getCommand() == StompCommand.CONNECT;
         boolean isDisconnect = sha.getCommand() == StompCommand.DISCONNECT;
