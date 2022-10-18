@@ -29,34 +29,10 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app"); // prefix comun pentru cand BROW imi scrie serverului
     }
     
-    @Bean
-    public GreetingHandshakeChatInterceptor handshakeInterceptor() {
-        return new GreetingHandshakeChatInterceptor();
-    }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // inregistreaza un STOMP/ws la URL-ul /chat
-        registry.addEndpoint("/chat").addInterceptors(handshakeInterceptor()).withSockJS();
-    }
-    @Slf4j
-    public static class GreetingHandshakeChatInterceptor implements HandshakeInterceptor{
-        @Autowired
-        @Lazy
-        private SimpMessagingTemplate webSocket;
-
-        @Override
-        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-            log.info("attr "+ attributes);
-            return true;
-        }
-
-        @SneakyThrows
-        @Override
-        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
-            log.info("welcome!");
-            webSocket.convertAndSend("/topic/chat", new OutputMessage("sys", "Please welcome "));
-        }
+        registry.addEndpoint("/chat").withSockJS();
     }
 
 }
