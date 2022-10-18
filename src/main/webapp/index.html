@@ -31,6 +31,8 @@
                 stompClient.subscribe('/topic/chat', function (messageOutput) {
                     showMessageOutput(JSON.parse(messageOutput.body));
                 });
+                stompClient.send("/app/chat", {}, JSON.stringify({'from': "sys", 'text': "Welcome " +from}));
+
             }, function() {
                 console.log("Lost connection!");
                 setConnected(false);
