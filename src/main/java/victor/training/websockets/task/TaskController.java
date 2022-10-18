@@ -121,10 +121,10 @@ public class TaskController {
             // cine cheama acest cod? Rabbit. threadul pe care esti nu vine din WEB, deci nu are SecurityContextHolder
             // Cum puii mei obtin eu aici userul care a initiat fluxul? ca sa-l pot notifica in Brow?
             String username = (String) taskResponseMessage.getHeaders().get("REQUESTER_USERNAME");
-            log.info("Got task status: " + taskResponseMessage);
+            log.info("Got task status: " + taskResponseMessage + " from user: " + username);
             String responseMessageFromQueue = taskResponseMessage.getPayload();
-//            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             webSocket.convertAndSend("/user/" + username + "/queue/task-done", responseMessageFromQueue);
+            log.info("STOMP message sent to browsers");
         };
     }
 

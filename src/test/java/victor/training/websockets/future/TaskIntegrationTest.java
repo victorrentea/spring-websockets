@@ -12,15 +12,10 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
-import org.testcontainers.containers.RabbitMQContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import victor.training.websockets.TimeUtils;
 
 import java.util.Map;
@@ -61,12 +56,12 @@ class TaskIntegrationTest {
 
     @Test
     void givenWebSocket_whenMessage_thenVerifyMessage() throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
-        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/user/admin/queue/task-done", String.class);
+        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/user/queue/task-done", String.class);
 //        TestStompSessionHandler<String> sessionHandler = new TestStompSessionHandler<>("/topic/task-status", String.class);
         log.info("Connecting to port: " + port);
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        headers.setBasicAuth("admin", "admin");
+        headers.setBasicAuth("user", "user");
         StompHeaders stompHeaders = new StompHeaders();
         stompClient.connect("ws://localhost:{port}/task/websocket", headers,stompHeaders, sessionHandler, port);
 
@@ -78,7 +73,7 @@ class TaskIntegrationTest {
 
         // m-am legat. Acum trebuie sa triggerez un semnal in urma caruia BE sa emita date pe WS
 
-        MessageHeaders messageHeaders = new MessageHeaders(Map.of("REQUESTER_USERNAME","admin"));
+        MessageHeaders messageHeaders = new MessageHeaders(Map.of("REQUESTER_USERNAME","user"));
         Message<String> pretendMessage = MessageBuilder.createMessage("task15 is done", messageHeaders);
         handleTaskResponse.accept(pretendMessage); // execu handlerul de mesaj ca si cum ar fi venit ACKul pe taskul trimis spre executie
 
