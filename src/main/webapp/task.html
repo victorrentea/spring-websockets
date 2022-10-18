@@ -33,11 +33,15 @@
 
             stompClient.connect({}, function (frame) {
                 setConnected(true);
-
-                stompClient.subscribe('/user/queue/task-status', function (response) {
+                stompClient.subscribe("/topic/task-done", function(response) {
                     logOnScreen("Received response: " + response.body);
                     toastr.success(response.body);
-                });
+                })
+
+                // stompClient.subscribe('/user/queue/task-status', function (response) {
+                //     logOnScreen("Received response: " + response.body);
+                //     toastr.success(response.body);
+                // });
                 // TODO communicate back errors in processing via '/user/queue/errors'
                 // TODO subscribe to event /topic/mainframe_down
             }, function() {
@@ -77,6 +81,7 @@
             // Option2: send via WS
             let body = JSON.stringify({'task': task});
             logOnScreen("Sending STOMP message: " + body);
+            stompClient.send("/app/task", JSON.stringify({"task": task}));
             // TODO send to 'app/task'
         }
 

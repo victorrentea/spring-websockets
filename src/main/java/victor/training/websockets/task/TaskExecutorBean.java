@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 @Slf4j
 @Configuration
-public class TaskExecutor {
+public class TaskExecutorBean {
     @Bean
     public Function<Message<String>,Message<String>> executeTask() {
         return taskRequestMessage-> {
