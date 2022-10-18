@@ -33,7 +33,7 @@
 
             stompClient.connect({}, function (frame) {
                 setConnected(true);
-                stompClient.subscribe("/topic/task-done", function(response) {
+                stompClient.subscribe("/user/queue/task-done", function(response) {
                     logOnScreen("Received response: " + response.body);
                     toastr.success(response.body);
                 })

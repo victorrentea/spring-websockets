@@ -32,7 +32,7 @@ public class TaskController {
     private final StreamBridge streamBridge;
     private final SimpMessagingTemplate webSocket;
 
-
+    // ----- de evitat: BROW trimite catre Server -----
     @MessageMapping("/task") // SEND peste WS din browser
     public void submitTaskOverWebsockets(TaskRequest taskRequest, Principal principal) throws Exception {
         // prefer sa iau requestul de la browser peste rest
@@ -51,6 +51,8 @@ public class TaskController {
         // webSocket.convertAndSendToUser(principal.getName(), "/queue/errors", exception.toString());
         // webSocket.convertAndSend("/user/"+principal.getName()+"/queue/errors",exception.toString());
     }
+    // -----END de evitat: BROW trimite catre Server -----
+
 
     @Async // cere lui spring sa execute munca asicnron, returnad instant 200 la client.
     @PostMapping("/submit-task")
@@ -62,7 +64,8 @@ public class TaskController {
         log.info("Ending long running task");
 
         // aici dupa ce am transpirat facand tasku, tre' sa anunt browserul
-        webSocket.convertAndSend("/topic/task-done", task + " GATA");
+        String queueName = "/user/" + principal.getName() + "/queue/task-done";
+        webSocket.convertAndSend(queueName, task + " GATA");
     }
 
 
@@ -85,9 +88,10 @@ public class TaskController {
     //        return sendMessageSink::asFlux;
     //    }
 
+    // REST
     @ResponseBody
     @ResponseStatus
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class) // @RestControllerAdvice
     public String handleExceptionInRest(Exception e) {
         return e.toString();
     }
