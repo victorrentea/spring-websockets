@@ -72,8 +72,8 @@
 <body onload="disconnect()">
 
 <div>
-
-
+    <h2> Chat app</h2>
+    <div>(see also the <a href="task.html">Task notification app</a>, using Spring Security)<br><br></div>
     <div>
         <label for="from">Connect as: </label>
         <input type="text" autofocus id="from" placeholder="Choose a nickname"/>
@@ -92,19 +92,16 @@
 </div>
 <script>
 
-    document.getElementById("from").addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById("connect").click();
-        }
-    });
-    document.getElementById("text").addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById("sendMessage").click();
-        }
-    });
-
+    function onEnterClickButton(inputTextId, buttonId) {
+        document.getElementById(inputTextId).addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById(buttonId).click();
+            }
+        });
+    }
+    onEnterClickButton("from", "connect");
+    onEnterClickButton("text", "sendMessage");
 </script>
 </script>
 </body>

@@ -21,7 +21,7 @@ public class StompWebSocketClientMain {
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.setBasicAuth("user","user");
         stompClient.connect(URL,headers, sessionHandler);
-
+        System.out.println("Be patient [ENTER to stop]...");
         new Scanner(System.in).nextLine();
     }
 }
