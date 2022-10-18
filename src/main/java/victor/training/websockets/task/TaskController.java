@@ -2,6 +2,7 @@ package victor.training.websockets.task;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
@@ -64,33 +65,37 @@ public class TaskController {
     @Async // cere lui spring sa execute munca asicnron, returnad instant 200 la client.
     @PostMapping("/submit-task")
     public void submitTaskOverRest(@RequestBody String task) throws Exception {
-//        if (Math.random() < 0.3) throw new RuntimeException("Life is not perfect. Exceptions while sending the message.");
-        //Cap1: requestul dureaza mult in mem mea
-//        String currentUsername = principal.getName();
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        log.info("Starting long running task for user " + currentUsername);
+        try {
+            bizLogic();
+            webSocket.convertAndSend("/user/" + currentUsername + "/queue/task-done", task + " GATA");
+        } catch (Exception e) {
+            webSocket.convertAndSend("/user/" + currentUsername + "/queue/errors", e.toString());
+        }
+    }
+
+    private void bizLogic() {
+        if (Math.random() < 0.3)
+            throw new RuntimeException("Life is not perfect. Exceptions while sending the message.");
+        //Cap1: requestul dureaza mult in mem mea
+        log.info("Starting long running task for user ");
         TimeUtils.sleepq(3); // 10 min inchipuieti
         log.info("Ending long running task");
 
-        // aici dupa ce am transpirat facand tasku, tre' sa anunt browserul
-        String queueName = "/user/" + currentUsername + "/queue/task-done";
-        webSocket.convertAndSend(queueName, task + " GATA");
     }
 
 
+    //Cap2: trimit mesaj pe o coada catre alt sistem
+    //        Message<String> requestMessage = withPayload(taskRequest.task())
+    //                .setHeader("REQUESTER_USERNAME", principal.getName())
+    //                .build();
+    //        log.info("Sending message over queue: " + taskRequest.task());
+    //        streamBridge.send("taskRequest-out-0", requestMessage);
 
-
-        //Cap2: trimit mesaj pe o coada catre alt sistem
-        //        Message<String> requestMessage = withPayload(taskRequest.task())
-        //                .setHeader("REQUESTER_USERNAME", principal.getName())
-        //                .build();
-        //        log.info("Sending message over queue: " + taskRequest.task());
-        //        streamBridge.send("taskRequest-out-0", requestMessage);
-
-        //        sendMessageSink.tryEmitNext(requestMessage); // Reactive way of sending
-        // TODO debate: when should I give a UUID back to the browser?
-        // TODO debate: when should I send a UUID in the message forward?
+    //        sendMessageSink.tryEmitNext(requestMessage); // Reactive way of sending
+    // TODO debate: when should I give a UUID back to the browser?
+    // TODO debate: when should I send a UUID in the message forward?
 
     //    public static final Sinks.Many<Message<String>> sendMessageSink = Sinks.many().unicast().onBackpressureBuffer();
     //    @Bean
