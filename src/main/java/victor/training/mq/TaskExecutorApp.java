@@ -6,9 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import victor.training.websockets.TimeUtils;
 
+import java.util.Map;
 import java.util.function.Function;
 @Slf4j
 @SpringBootApplication
@@ -20,12 +22,17 @@ public class TaskExecutorApp {
     }
 
     @Bean
-    public Function<Message<String>,Message<String>> executeTask() {
-        return taskRequestMessage-> {
-            log.info("Processing task in a separate app: Start...");
-            TimeUtils.sleepq(1);
-            log.info("Processing task: END");
-            return MessageBuilder.createMessage(taskRequestMessage.getPayload() + " ... OK", taskRequestMessage.getHeaders());
+    public Function<Message<String>, Message<String>> executeTask() {
+        return inputMessage -> {
+            log.info("Start working on " + inputMessage.getPayload());
+            TimeUtils.sleepq(3);
+            log.info("Finish working on " + inputMessage.getPayload());
+            MessageHeaders replyMessageHeaders = inputMessage.getHeaders();
+            Message<String> replyMessage = MessageBuilder.createMessage(
+                    "Gata AM TERMINAT " + inputMessage.getPayload(), replyMessageHeaders);
+            return replyMessage;
         };
     }
+
+
 }

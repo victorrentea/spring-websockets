@@ -1,28 +1,33 @@
 management.endpoints.web.exposure.include: "*"
-management.endpoint.prometheus.enabled: true
-management.endpoint.health.show-details: always
+
 spring:
   cloud:
-    function:
-      definition: executeTask;handleTaskResponse;taskRequest
+#    function:
+#      definition: executeTask;handleTaskResponse;taskRequest
     stream:
       bindings:
+        #config pt app "client"
         taskRequest-out-0:
-          destination: task-request
-        executeTask-in-0:
-          destination: task-request
-          group: execute-app
-          consumer:
-            concurrency: 5
-        executeTask-out-0:
-          destination: task-response
+          destination: task-request #numele in Rabbit
         handleTaskResponse-in-0:
           destination: task-response
           group: client-app
 
 
-  thymeleaf:
-    prefix: classpath:/resources
+        #config pt app "provider"
+        executeTask-in-0:
+          destination: task-request
+          consumer:
+            concurrency: 5 #= mesaje in procesare simultan = pe cate threduri procesez mesaje din rabbit
+          group: execute-app # util cand deployezi TaskExecutorApp pe mai multe instante, si toate trag din Rabbit mesaje.
+        # pentru ca Rabbit sa considere mesajul livrat app tale, trebuie sa-i spui din fiecare instanta ca esti de fapt
+        # acelasi "consumer group" = load balancing pe procesarea mesajului
+        executeTask-out-0:
+          destination: task-response
+
+
+
+logging:
   level:
     victor: DEBUG
 

@@ -6,10 +6,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +25,7 @@ import javax.annotation.PostConstruct;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -32,7 +35,7 @@ import static org.springframework.messaging.support.MessageBuilder.withPayload;
 @Slf4j
 @RestController
 public class TaskController {
-    private final StreamBridge streamBridge;
+    private final StreamBridge streamBridge; // spring cloud "stream" de mesaj
     private final SimpMessagingTemplate webSocket;
 
     // ----- de evitat: BROW trimite catre Server -----
@@ -82,7 +85,15 @@ public class TaskController {
         log.info("Starting long running task for user ");
         TimeUtils.sleepq(3); // 10 min inchipuieti
         log.info("Ending long running task");
+    }
 
+
+    @PostMapping("/submit-task-q")
+    public void submitTaskOverRestQ(@RequestBody String task, Principal principal) {
+        Map<String, Object> headers = Map.of("REQUESTER_USERNAME", principal.getName());
+        Message<String> message = MessageBuilder.createMessage(task, new MessageHeaders(headers));
+        streamBridge.send("taskRequest-out-0", message);
+        // trimit pe channelul 'taskRequest-out-0' - un nume intern dat cozii/topicului extern din MQ
     }
 
 
@@ -114,16 +125,15 @@ public class TaskController {
 
     @Bean
     public Consumer<Message<String>> handleTaskResponse() {
+        // handler de mesaje venite pe o coada de reply de la alta app.
         return taskResponseMessage -> {
+            // cine cheama acest cod? Rabbit. threadul pe care esti nu vine din WEB, deci nu are SecurityContextHolder
+            // Cum puii mei obtin eu aici userul care a initiat fluxul? ca sa-l pot notifica in Brow?
+            String username = (String) taskResponseMessage.getHeaders().get("REQUESTER_USERNAME");
             log.info("Got task status: " + taskResponseMessage);
-            String requesterUsername = taskResponseMessage.getHeaders().get("REQUESTER_USERNAME", String.class);
             String responseMessageFromQueue = taskResponseMessage.getPayload();
-            if (requesterUsername == null) {
-                log.warn("No REQUESTER_USERNAME header found in incoming message!");
-                return;
-            }
-            //            webSocket.convertAndSendToUser(requesterUsername, "/queue/task-status", responseMessageFromQueue);
-            webSocket.convertAndSend("/topic/task-status", responseMessageFromQueue);
+//            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            webSocket.convertAndSend("/user/" + username + "/queue/task-done", responseMessageFromQueue);
         };
     }
 

@@ -59,11 +59,12 @@
         setInterval(p=> {if (stompClient == null) connect()}, 1000); // TODO debate: what number to use here?
 
 
-        function sendViaRest() {
+        function sendViaRest(async) {
             const task = document.getElementById('task').value;
 
             // Option1: send via REST
-            fetch("submit-task", {
+            let url = async?"submit-task":"submit-task-q";
+            fetch(url, {
                 method: 'post',
                 body: task
             })
@@ -108,7 +109,8 @@
 
     <div>
         <input type="text" id="task" value="task" />
-        <button  autofocus onclick="sendViaRest()">Send via REST</button>
+        <button  autofocus onclick="sendViaRest(true)">Send via REST @Async</button>
+        <button  autofocus onclick="sendViaRest(false)">Send via REST Queue</button>
         <button onclick="sendViaWS()">Send via WS</button>
     </div>
     <br/>
